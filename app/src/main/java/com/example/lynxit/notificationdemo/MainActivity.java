@@ -3,6 +3,7 @@ package com.example.lynxit.notificationdemo;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -35,19 +36,56 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void Notify(String notificationTitle, String notificationMessage){
+
         NotificationManager notificationManager= (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        Notification notification =  null;//new Notification(R.mipmap.ic_launcher,"New Message",System.currentTimeMillis());
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
 
+        builder.setContentTitle(notificationTitle);
+        builder.setContentText(notificationMessage);
+        builder.setTicker("New Message Alert!");
+        builder.setSmallIcon(R.mipmap.ic_launcher);
 
-        Intent notificationIntent = new Intent(this,NotificationView.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this,0,notificationIntent,0);
-        notification = builder.setContentIntent(pendingIntent).setSmallIcon(R.mipmap.ic_launcher).setTicker(notificationMessage).
-                setWhen(System.currentTimeMillis()).setAutoCancel(true).setContentTitle(notificationTitle).setContentText(notificationMessage).build();
-        notificationManager.notify(9999, notification);
+        int numMessages=0;
+        builder.setNumber(++numMessages);
 
+        NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+        PendingIntent resultPendingIntent = null;
 
+        String[] events = new String[6];
+        events[0] = new String("This is first line....");
+
+        events[1] = new String("This is second line....");
+
+        events[2] = new String("This is third line....");
+
+        events[3] = new String("This is fourth line....");
+
+        events[4] = new String("This is fifth line....");
+
+        events[5] = new String("This is sixth line....");
+
+        inboxStyle.setBigContentTitle("Big Title Details:");
+
+        for(int i=0;i<events.length;i++)
+        {
+            inboxStyle.addLine(events[i]);
+        }
+        builder.setStyle(inboxStyle);
+
+        Intent resultIntent = new Intent (this,NotificationView.class);
+
+        TaskStackBuilder stackbuilder = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+            stackbuilder = TaskStackBuilder.create(this);
+
+            stackbuilder.addParentStack(NotificationView.class);
+            stackbuilder.addNextIntent(resultIntent);
+            resultPendingIntent= stackbuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
+
+        builder.setContentIntent(resultPendingIntent);
+        notificationManager.notify(9999,builder.build());
     }
 
     @Override
